@@ -1,0 +1,1 @@
+ALTER TABLE cerveja MODIFY descricao MEDIUMTEXT;

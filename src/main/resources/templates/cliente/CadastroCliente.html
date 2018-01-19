@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml"
+									xmlns:th="http://www.thymeleaf.org"
+									xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+									xmlns:data="http://www.thymeleaf.org/extras/data"
+									layout:decorate="~{layout/LayoutPadrao}"
+									xmlns:brauer="http://brauer.tjgo">
+									
+	<head><title>Cadastro de cliente</title></head>
+	
+	<body>
+		<section layout:fragment="conteudo">
+		
+			<div class="page-header">
+				<div class="container-fluid">
+					
+					<div class="row">
+						<div class="col-xs-10">
+							<h1  th:if="${cliente.novo}">Cadastro de cliente</h1>
+							<h1  th:unless="${cliente.novo}" th:text="|Edição do cliente ${cliente.nome}|">Edição do cliente</h1>
+						</div>
+						<div class="col-xs-2">
+							<div class="aw-page-header-controls">
+								<a class="btn  btn-default" th:href="@{/clientes}">
+									<i class="glyphicon  glyphicon-plus-sign"></i><span class="hidden-xs  hidden-sm">Pesquisa</span>
+								</a>
+							</div>
+						</div>						
+					</div>
+					
+				</div>
+			</div>
+			
+			<div class="container-fluid">
+	
+				<!-- <div class="alert  alert-danger  alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>	</button>
+					<i class="fa  fa-exclamation-circle"></i> Já existe um produto com o nome informado.	
+				</div> -->
+	
+				<form method="POST" th:object="${cliente}"
+							th:action="${cliente.novo} ? @{/clientes/novo} : @{/clientes/{codigo}(codigo=${cliente.codigo})}">
+					
+					<brauer:mensagem/>
+					<input type="hidden" th:field="*{codigo}"/>
+				
+					<div class="row">
+						<div class="form-group  col-sm-12  be-required"  brauer:classeparaerros="nome">
+							<label for="nome" class="control-label">Nome</label> 
+							<input id="nome" type="text" class="form-control" th:field="*{nome}" />
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="form-group  col-sm-4  be-required"  brauer:classeparaerros="tipoPessoa">
+							<label class="control-label">Tipo Pessoa</label> 
+							<div>
+								<th:block th:each="tipoPessoa : ${tiposPessoa}">
+									<div class="radio radio-inline">
+										<!-- Com o thymeleaf extras data attribute -->
+										<input type="radio" th:id="|id_${tipoPessoa}|"  class="js-radio-tipo-pessoa" 
+													 th:field="*{tipoPessoa}"  th:value="${tipoPessoa}"
+													data:documento="${tipoPessoa.documento}"  data:mascara="${tipoPessoa.mascara}">
+													<!-- Sem a utilização do thymeleaf extras a última linha do input ficaria da seguinte forma:
+													 th:attr="data-documento=${tipoPessoa.documento},  data-mascara=${tipoPessoa.mascara}"> -->
+										<label class="control-label"  th:for="|id_${tipoPessoa}|"  th:text="${tipoPessoa.descricao}">Física</label>
+									</div>
+								</th:block>
+							</div>
+						</div>
+					
+						<div class="form-group  col-sm-8  be-required"  brauer:classeparaerros="cpfCnpj">
+							<label for="cpfCnpj"  class="control-label">CPF / CNPJ</label> 
+							<input  type="text"  class="form-control"  id="cpfCnpj"  th:field="*{cpfCnpj}"  disabled />
+						</div>
+						
+					</div>
+					
+					<div class="row">
+						<div class="form-group  col-sm-4">
+							<label for="telefone">Telefone</label> 
+							<input  type="text"  class="form-control  js-telefone"  id="telefone"  th:field="*{telefone}" />
+						</div>
+						
+						<div class="form-group  col-sm-8"  brauer:classeparaerros="email">
+							<label   for="email"  class="control-label">E-mail</label> 
+							<input  type="text"  class="form-control"  id="email"  th:field="*{email}" />
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="form-group  col-sm-4">
+							<label for="logradouro">Logradouro</label> 
+							<input  type="text" class="form-control"   id="logradouro"  th:field="*{endereco.logradouro}" />
+						</div>
+						
+						<div class="form-group  col-sm-4">
+							<label for="numero">Número</label> 
+							<input  type="text" class="form-control"  id="numero"  th:field="*{endereco.numero}"/>
+						</div>
+						
+						<div class="form-group  col-sm-4">
+							<label for="complemento" class="control-label">Complemento</label> 
+							<input  type="text"  class="form-control"  id="complemento"  th:field="*{endereco.complemento}"/>
+						</div>
+						
+					</div>
+					
+					<div class="row">
+						<div class="form-group  col-sm-4">
+							<label for="cep">CEP</label> 
+							<input  type="text"  class="form-control  js-mascara-cep"  id="cep"  th:field="*{endereco.cep}"/>
+						</div>
+						
+						<div class="form-group  col-sm-4">
+							<label for="estado">Estado</label> 
+							<select id="estado" class="form-control"  th:field="*{endereco.estado}">
+								<option value="">Selecione o estado</option>
+								<option th:each="estado : ${estados}"  th:value="${estado.codigo}"  th:text="${estado.nome}">Goiás</option>
+							</select>
+						</div>
+						
+						<div class="form-group  col-sm-4">
+							<label for="cidade">Cidade</label> 
+							<div class="be-campo-acao">
+								<input type="hidden"  id="inputHiddenCidadeSelecionada"  th:value="*{endereco.cidade} != null ? *{endereco.cidade.codigo}"/>
+								<select id="cidade" class="form-control" data:url="@{/cidades}"  th:field="*{endereco.cidade}" >
+								</select>
+								<div class="be-campo-acao__icone  js-img-loading" style="display: none">
+									<img th:src="@{/imagens/mini-loading.gif}"/>
+								</div>
+							</div>
+						</div>
+						
+					</div>
+					
+					<div class="form-group">
+						<button class="btn  btn-primary" type="submit">Salvar</button>
+					</div>
+					
+				</form>
+			</div>
+		</section>
+		
+		<th:block layout:fragment="javascript-extra">
+			<script th:src="@{/javascripts/cliente.mascara-cpf-cnpj.js}"></script>
+			<script th:src="@{/javascripts/cliente.combo-estado-cidade.js}"></script>
+		</th:block>
+		
+	</body>
+</html>
